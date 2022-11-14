@@ -1,61 +1,81 @@
-const bouttonDifficulteeFacile = document.getElementById('bouttonDifficulteeFacile');
-const bouttonDifficulteeMoyenne = document.getElementById('bouttonDifficulteeMoyenne');
-const bouttonDifficulteeDifficile = document.getElementById('bouttonDifficulteeDifficile');
+const easyDifficultyButton = document.getElementById('easyDifficultyButton');
+const normalDifficultyButton = document.getElementById('normalDifficultyButton');
+const hardDifficultyButton = document.getElementById('hardDifficultyButton');
 
-let difficultee = 0;
-var talbeauTuiles = new Array();
+let difficulty = 0;
+var tileArray = new Array();
 
 
-bouttonDifficulteeFacile.addEventListener('click', () => {
-    //alert('vous avez choisis la difficultée facile');
-    difficultee = 5;
-    dimensionTableauTuiles(difficultee);
-    affichageTableauTuiles(difficultee);
+easyDifficultyButton.addEventListener('click', () => {
+    difficulty = 7;
+    tileArrayDimension(difficulty);
+    tileArrayDisplay(difficulty);
+    //placeBombs(difficulty);
 })
 
-bouttonDifficulteeMoyenne.addEventListener('click', () => {
-    //alert('vous avez choisis la difficultée moyenne');
-    difficultee = 7;
-    dimensionTableauTuiles(difficultee);
-    affichageTableauTuiles(difficultee);
+normalDifficultyButton.addEventListener('click', () => {
+    difficulty = 10;
+    tileArrayDimension(difficulty);
+    tileArrayDisplay(difficulty);
+    //placeBombs(difficulty);
 })
 
-bouttonDifficulteeDifficile.addEventListener('click', () => {
-    //alert('vous avez choisis la difficultée difficile')
-    difficultee = 9;
-    dimensionTableauTuiles(difficultee);
-    affichageTableauTuiles(difficultee);
+hardDifficultyButton.addEventListener('click', () => {
+    difficulty = 15;
+    tileArrayDimension(difficulty);
+    tileArrayDisplay(difficulty);
+    //placeBombs(difficulty);
 })
 
 
-function dimensionTableauTuiles(difficultee) {
-    talbeauTuiles = new Array(difficultee);
-    for (let i = 0; i < difficultee; i++) {
-        talbeauTuiles[i] = new Array(difficultee)
+function tileArrayDimension(difficulty) {
+    var longueur = "";
+    for (let i = 0; i < difficulty - 1; i++) {
+        var ctr = "[0,0],";
+        var longueur = longueur + ctr;
     }
-    console.log("creation", talbeauTuiles);
+    longueur = longueur + "[0,0]";
+    let test = [
+        longueur
+    ]
 }
 
-function affichageTableauTuiles(difficultee) {
+function tileArrayDisplay(difficulty) {
     
     var body = document.getElementsByTagName("body")[0];
     var table = document.createElement("table");
     var tableBody = document.createElement("tbody");
 
-    for (let x = 0; x < difficultee; x++) {
-        var ligne = document.createElement("tr");
-        for (let y = 0; y < difficultee; y++) {
-            var tuile = document.createElement("td");
-            var bouttonTuile = document.createElement('button');
-            var bouttonText = document.createTextNode("");
-            tuile.appendChild(bouttonTuile);
-            bouttonTuile.appendChild(bouttonText);
-            ligne.appendChild(tuile);
+    for (let x = 0; x < difficulty; x++) {
+        var raw = document.createElement("tr");
+        for (let y = 0; y < difficulty; y++) {
+            var tile = document.createElement("td");
+            var tileButton = document.createElement('button');
+            tile.appendChild(tileButton);
+            raw.appendChild(tile);
         }
-        tableBody.appendChild(ligne); 
+        tableBody.appendChild(raw); 
     }
     
     table.appendChild(tableBody);
     body.appendChild(table);
     table.setAttribute("border", "2");
+}
+
+function randomInt(max)
+{
+    return Math.floor(Math.random() * (max + 1));
+}
+
+function placeBombs(difficulty) {
+    for (let i = 0; i < difficulty; i++){
+        a = randomInt(difficulty);
+        b = randomInt(difficulty);
+        console.log(a,b);
+        if(tileArray[a][b] != 10){
+            tileArray[a][b] = 10;
+        } 
+        else i--;
+    }
+    console.log(tileArray);
 }
