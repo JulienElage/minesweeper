@@ -1,3 +1,4 @@
+
 const easyDifficultyButton = document.getElementById('easyDifficultyButton');
 const normalDifficultyButton = document.getElementById('normalDifficultyButton');
 const hardDifficultyButton = document.getElementById('hardDifficultyButton');
@@ -7,8 +8,18 @@ var tileArrayHidden;
 const canvas = document.querySelector('canvas')
 let ctx = canvas.getContext('2d');
 
+
+class Tile {
+    value = 0;
+    isDiscovered = false;
+    constructor(value, isDiscovered) {
+        this.value = value;
+        this.isDiscovered = isDiscovered
+    }
+}
+
 canvas.addEventListener('mousedown', function(e) {
-    getCursorPosition(canvas, e)
+    userClickedOnTile(canvas, e)
 })
 
 easyDifficultyButton.addEventListener('click', () => {
@@ -58,7 +69,7 @@ function createHiddenTileArray(difficulty) {
     //On a créer un tableau vide.
     for(let i = 0; i < difficulty ; i++) {
         for(let j = 0; j < difficulty ; j++){
-            tileArrayHidden[i][j] = 0;
+            tileArrayHidden[i][j] = new Tile(0,false);
         }
         //On a initialisé à 0.  
     } 
@@ -73,29 +84,35 @@ function placeBombs(difficulty) {
     for (let i = 0; i < difficulty*2; i++){
         a = randomInt(difficulty-1);
         b = randomInt(difficulty-1);
-        if(tileArrayHidden[a][b] != 10){
-            tileArrayHidden[a][b] = 10;
+        if(tileArrayHidden[a][b].value != 10){
+            tileArrayHidden[a][b].value = 10;
         } else i--;
     }
     //console.log(tileArrayHidden);
 }
 
-function getCursorPosition(canvas, event) {
+function userClickedOnTile(canvas, event) {
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
-    console.log("x: " + x + " y: " + y)
-
-    var imageTile = document.createElement("img");
+    if(tileArrayHidden[Math.floor(x/45)][Math.floor(y/48)].isDiscovered == false){
+        var imageTile = document.createElement("img");
         imageTile.src = "./image/bombTile.jpg";
-        imageTile.addEventListener('load', function(){
-            ctx.drawImage(imageTile, Math.floor(x/45)*45, Math.floor(y/48)*48, 45, 48,);
-        }, false);
+        var imageDiscoveredTile = document.createElement("img");
+        imageDiscoveredTile.src = "./image/discoveredTile.jpg";
 
-    console.log(Math.floor(x/45),Math.floor(y/48));
-    console.log(tileArrayHidden[Math.floor(x/45)][Math.floor(y/48)]);
-    if(tileArrayHidden[Math.floor(x/45)][Math.floor(y/48)] == 10){
-        console.log("perdu");
+        if(tileArrayHidden[Math.floor(x/45)][Math.floor(y/48)].value == 10){
+                imageTile.addEventListener('load', function(){
+                ctx.drawImage(imageTile, Math.floor(x/45)*45, Math.floor(y/48)*48, 45, 48,);
+                }, false);
+                console.log("perdu");
+        } 
+        else {
+            imageTile.addEventListener('load', function(){
+            ctx.drawImage(imageDiscoveredTile, Math.floor(x/45)*45, Math.floor(y/48)*48, 45, 48,);
+            }, false);
+        }
+        tileArrayHidden[Math.floor(x/45)][Math.floor(y/48)].isDiscovered = true;
     }
 }
 
