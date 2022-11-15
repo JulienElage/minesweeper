@@ -3,7 +3,7 @@ const normalDifficultyButton = document.getElementById('normalDifficultyButton')
 const hardDifficultyButton = document.getElementById('hardDifficultyButton');
 
 let difficulty = 0;
-var tileArray = new Array();
+var tileArrayHidden;
 const canvas = document.querySelector('canvas')
 let ctx = canvas.getContext('2d');
 
@@ -14,16 +14,22 @@ canvas.addEventListener('mousedown', function(e) {
 easyDifficultyButton.addEventListener('click', () => {
     difficulty = 7;
     tileArrayDisplay(difficulty);
+    tileArrayHidden = createHiddenTileArray(difficulty);
+    placeBombs(difficulty);
 })
 
 normalDifficultyButton.addEventListener('click', () => {
     difficulty = 10;
     tileArrayDisplay(difficulty);
+    tileArrayHidden = createHiddenTileArray(difficulty);
+    placeBombs(difficulty);
 })
 
 hardDifficultyButton.addEventListener('click', () => {
     difficulty = 15;
     tileArrayDisplay(difficulty);
+    tileArrayHidden = createHiddenTileArray(difficulty);
+    placeBombs(difficulty);
 })
 
 function tileArrayDisplay(difficulty) {
@@ -63,7 +69,6 @@ function createHiddenTileArray(difficulty) {
 
 function placeBombs(difficulty) {
 
-    var tileArrayHidden = createHiddenTileArray(difficulty);
     //On place le nombre 10 (qui représente les bombes) à un emplacement aléatoire dans le tableau. On répète l'opération en fonction de la difficultée.
     for (let i = 0; i < difficulty*2; i++){
         a = randomInt(difficulty-1);
@@ -73,7 +78,6 @@ function placeBombs(difficulty) {
         } else i--;
     }
     //console.log(tileArrayHidden);
-    return tileArrayHidden;
 }
 
 function getCursorPosition(canvas, event) {
@@ -85,13 +89,12 @@ function getCursorPosition(canvas, event) {
     var imageTile = document.createElement("img");
         imageTile.src = "./image/bombTile.jpg";
         imageTile.addEventListener('load', function(){
-            ctx.drawImage(imageTile, Math.floor(x/30)*45, Math.floor(y/30)*48, 45, 48,);
+            ctx.drawImage(imageTile, Math.floor(x/45)*45, Math.floor(y/48)*48, 45, 48,);
         }, false);
 
-
-    var tileArrayHidden = placeBombs(difficulty);
-    console.log(Math.floor(x/30),Math.floor(y/30));
-    if(tileArrayHidden[Math.floor(x/30)][Math.floor(y/30)] == 10){
+    console.log(Math.floor(x/45),Math.floor(y/48));
+    console.log(tileArrayHidden[Math.floor(x/45)][Math.floor(y/48)]);
+    if(tileArrayHidden[Math.floor(x/45)][Math.floor(y/48)] == 10){
         console.log("perdu");
     }
 }
