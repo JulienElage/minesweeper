@@ -4,78 +4,100 @@ const hardDifficultyButton = document.getElementById('hardDifficultyButton');
 
 let difficulty = 0;
 var tileArray = new Array();
+const canvas = document.querySelector('canvas')
+let ctx = canvas.getContext('2d');
 
+canvas.addEventListener('mousedown', function(e) {
+    getCursorPosition(canvas, e)
+})
 
 easyDifficultyButton.addEventListener('click', () => {
     difficulty = 7;
-    tileArrayDimension(difficulty);
     tileArrayDisplay(difficulty);
-    //placeBombs(difficulty);
 })
 
 normalDifficultyButton.addEventListener('click', () => {
     difficulty = 10;
-    tileArrayDimension(difficulty);
     tileArrayDisplay(difficulty);
-    //placeBombs(difficulty);
 })
 
 hardDifficultyButton.addEventListener('click', () => {
     difficulty = 15;
-    tileArrayDimension(difficulty);
     tileArrayDisplay(difficulty);
-    //placeBombs(difficulty);
 })
 
-
-function tileArrayDimension(difficulty) {
-    var longueur = "";
-    for (let i = 0; i < difficulty - 1; i++) {
-        var ctr = "[0,0],";
-        var longueur = longueur + ctr;
-    }
-    longueur = longueur + "[0,0]";
-    let test = [
-        longueur
-    ]
-}
-
 function tileArrayDisplay(difficulty) {
-    
-    var body = document.getElementsByTagName("body")[0];
-    var table = document.createElement("table");
-    var tableBody = document.createElement("tbody");
-
+    //Fonction qui affiche un nombre d'images de tuiles en fonction de la difficultée.
+    ctx.canvas.width  = difficulty*45;
+    ctx.canvas.height = difficulty*48;
     for (let x = 0; x < difficulty; x++) {
-        var raw = document.createElement("tr");
         for (let y = 0; y < difficulty; y++) {
-            var tile = document.createElement("td");
-            var tileButton = document.createElement('button');
-            tile.appendChild(tileButton);
-            raw.appendChild(tile);
+        var imageTile = document.createElement("img");
+        imageTile.src = "./image/tuile.jpg";
+        imageTile.addEventListener('load', function(){
+            ctx.drawImage(imageTile, x*45, y*48, 45, 48,);
+        }, false);
         }
-        tableBody.appendChild(raw); 
+
     }
-    
-    table.appendChild(tableBody);
-    body.appendChild(table);
-    table.setAttribute("border", "2");
 }
 
-function randomInt(max)
-{
-    return Math.floor(Math.random() * (max + 1));
+function createHiddenTileArray(difficulty) {
+    //Fonction qui créée un tableau 7*7 ou 10*10 ou 15*15 en fonction de la difficultée choisie et l'initialise à 0 partout.
+    var tileArrayHidden = new Array(difficulty)
+
+    for (let i = 0; i < difficulty; i++){
+        tileArrayHidden[i] = new Array(difficulty);
+    }
+    //On a créer un tableau vide.
+    for(let i = 0; i < difficulty ; i++) {
+        for(let j = 0; j < difficulty ; j++){
+            tileArrayHidden[i][j] = 0;
+        }
+        //On a initialisé à 0.  
+    } 
+    console.log(tileArrayHidden);
+    return tileArrayHidden;
+   
 }
 
 function placeBombs(difficulty) {
-    for (let i = 0; i < difficulty; i++){
-        a = randomInt(difficulty);
-        b = randomInt(difficulty);
-        console.log(a,b);
-        if(tileArray[a][b] != 10){
-            tileArray[a][b] = 10;
-        } 
-        else i--;
+
+    var tileArrayHidden = createHiddenTileArray(difficulty);
+    //On place le nombre 10 (qui représente les bombes) à un emplacement aléatoire dans le tableau. On répète l'opération en fonction de la difficultée.
+    for (let i = 0; i < difficulty*2; i++){
+        a = randomInt(difficulty-1);
+        b = randomInt(difficulty-1);
+        if(tileArrayHidden[a][b] != 10){
+            tileArrayHidden[a][b] = 10;
+        } else i--;
     }
-    console.log(tileArray);
+    //console.log(tileArrayHidden);
+    return tileArrayHidden;
+}
+
+function getCursorPosition(canvas, event) {
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    console.log("x: " + x + " y: " + y)
+
+    var imageTile = document.createElement("img");
+        imageTile.src = "./image/bombTile.jpg";
+        imageTile.addEventListener('load', function(){
+            ctx.drawImage(imageTile, Math.floor(x/30)*45, Math.floor(y/30)*48, 45, 48,);
+        }, false);
+
+
+    var tileArrayHidden = placeBombs(difficulty);
+    console.log(Math.floor(x/30),Math.floor(y/30));
+    if(tileArrayHidden[Math.floor(x/30)][Math.floor(y/30)] == 10){
+        console.log("perdu");
+    }
+}
+
+function randomInt(max)
+//Fonction qui renvoie un nombre aléatoire (pas besoin d'un minimum, car c'est 0 dans notre cas).
+{
+    return Math.floor(Math.random() * (max + 1));
 }
