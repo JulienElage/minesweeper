@@ -51,7 +51,7 @@ hardDifficultyButton.addEventListener('click', () => {
     setTilesNumber();
 })
 
-//Fonction qui affiche un nombre d'images de tuiles en fonction de la difficultée.
+//Fonction qui affiche un nombre d'images de tuiles en fonction de la difficulté.
 function displayTiles() {
 
     ctx.canvas.width  = difficulty*45;
@@ -67,7 +67,7 @@ function displayTiles() {
     }
 }
 
-//Fonction qui créée un tableau 7*7 ou 10*10 ou 15*15 en fonction de la difficultée choisie et l'initialise à 0 partout.
+//Fonction qui crée un tableau 7*7 ou 10*10 ou 15*15 en fonction de la difficulté choisie et l'initialise à 0 partout.
 function createHiddenTileArray() {
     
     var tileArrayHidden = new Array(difficulty)
@@ -75,7 +75,7 @@ function createHiddenTileArray() {
     for (let i = 0; i < difficulty; i++){
         tileArrayHidden[i] = new Array(difficulty);
     }
-    //On a créer un tableau vide.
+    //On a créé un tableau vide.
     for(let i = 0; i < difficulty ; i++) {
         for(let j = 0; j < difficulty ; j++){
             tileArrayHidden[i][j] = new Tile(0,false,0);
@@ -87,10 +87,10 @@ function createHiddenTileArray() {
 
 }
 
-//Fonction qui place le nombre 10 (qui représente les bombes) à un emplacement aléatoire dans le tableau. On répète l'opération en fonction de la difficultée.
+//Fonction qui place le nombre 10 (qui représente les bombes) à un emplacement aléatoire dans le tableau. On répète l'opération en fonction de la difficulté.
 function placeBombs() {
 
-    for (let i = 0; i < difficulty; i++){
+    for (let i = 0; i < difficulty*2; i++){
         a = randomInt(difficulty-1);
         b = randomInt(difficulty-1);
         if(hiddenTileArray[a][b].value != 10){
@@ -145,7 +145,7 @@ function setTilesNumber() {
     console.log(hiddenTileArray);
 }
 
-//L'utilisateur fait un clique gauche sur une tuile
+//L'utilisateur fait un clic gauche sur une tuile
 canvas.addEventListener('click', function(e) {
 
     var position = new Position;
@@ -155,7 +155,7 @@ canvas.addEventListener('click', function(e) {
     userLeftClickedOnTile(x,y);
 })
 
-//L'utilisateur fait un clique droit sur une tuile
+//L'utilisateur fait un clic droit sur une tuile
 canvas.addEventListener('contextmenu', function(e) {
 
     var position = new Position;
