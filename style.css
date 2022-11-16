@@ -56,3 +56,13 @@ a.compteur {
     margin-top: 1%;
     margin-left: 4%;
 }
+
+div.playerWin{
+    text-align: center;
+    margin: 2%;
+}
+
+div.retryButton{
+    text-align: center;
+    margin: 2%;
+}

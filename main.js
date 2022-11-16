@@ -2,7 +2,10 @@
 const easyDifficultyButton = document.getElementById('easyDifficultyButton');
 const normalDifficultyButton = document.getElementById('normalDifficultyButton');
 const hardDifficultyButton = document.getElementById('hardDifficultyButton');
+const tryAgainButton = document.getElementById('retryButton');
+const playerWonDiv = document.getElementById('playerWin');
 const canvas = document.querySelector('canvas')
+var didPlayerLost = false;
 var hiddenTileArray;
 let gameSize = 0;
 var difficulty = "easy"
@@ -51,6 +54,10 @@ hardDifficultyButton.addEventListener('click', () => {
     start();
 })
 
+tryAgainButton.addEventListener('click', () =>{
+    start();
+})
+
 //Cette fonction lancer la partie en fonction des parametres
   function start() {
 
@@ -65,10 +72,12 @@ hardDifficultyButton.addEventListener('click', () => {
             gameSize = 15;
             break;
     }
-
+    didPlayerLost = false;
     bombsNumber = gameSize*2;
     tileToDiscover = gameSize*gameSize - bombsNumber;
     tileDiscovered = 0;
+    tryAgainButton.style.display = "none";
+    playerWonDiv.style.display = "none";
     hiddenTileArray = createHiddenTileArray();
     displayTiles();
     placeBombs();
@@ -100,20 +109,19 @@ canvas.addEventListener('contextmenu', function(e) {
 //Fonction qui va découvrir la tuile, si elle ne l'est pas déjà, et si elle n'est pas marquée (drapeau ou '?').
 function userLeftClickedOnTile(x,y){
 
-    if(hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 0){
+    if(hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 0 && didPlayerLost == false){
         hiddenTileArray[x][y].isDiscovered = true;
-        var imageBombTile = document.createElement("img");
-        imageBombTile.src = "./image/bombTile.png";
-        var imageDiscoveredTile = document.createElement("img");
-        imageDiscoveredTile.src = "./image/discoveredTile.jpg";
-
         if(hiddenTileArray[x][y].value >= 10){
-                imageBombTile.addEventListener('load', function(){
-                ctx.drawImage(imageBombTile, x*45, y*48, 45, 48,);
-                }, false);
                 playerLost();
+                var imageBombOnClick = document.createElement("img");
+                imageBombOnClick.src = "./image/bombOnClick.png";
+                imageBombOnClick.addEventListener('load', function(){
+                    ctx.drawImage(imageBombOnClick, x*45, y*48, 45, 48,);
+                    }, false);
         } 
         else {
+            var imageDiscoveredTile = document.createElement("img");
+            imageDiscoveredTile.src = "./image/discoveredTile.jpg";
             imageDiscoveredTile.addEventListener('load', function(){
             ctx.drawImage(imageDiscoveredTile, x*45, y*48, 45, 48,);
             let value = hiddenTileArray[x][y].value;
@@ -176,7 +184,7 @@ function tileIsSetToZero(x,y) {
 function userRightClickedOnTile(x,y){
     switch (true){
 
-        case hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 0:
+        case hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 0 && didPlayerLost == false:
             var imageMarkedTile = document.createElement("img");
             imageMarkedTile.src = "./image/markedTile.jpg";
             imageMarkedTile.addEventListener('load', function(){
@@ -190,7 +198,7 @@ function userRightClickedOnTile(x,y){
             }
             break;
 
-        case hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 1:
+        case hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 1 && didPlayerLost == false:
             var imageQuestionningTile = document.createElement("img");
             imageQuestionningTile.src = "./image/questionningTile.jpg";
             imageQuestionningTile.addEventListener('load', function(){
@@ -201,7 +209,7 @@ function userRightClickedOnTile(x,y){
             document.getElementById('compteur').innerHTML = bombsNumber;
             break;
 
-        case hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 2:
+        case hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 2 && didPlayerLost == false:
             var imageTile = document.createElement("img");
             imageTile.src = "./image/tile.jpg";
             imageTile.addEventListener('load', function(){
@@ -216,24 +224,27 @@ function userRightClickedOnTile(x,y){
 //Le joueur a gagné
 function playerWon(){
 
-        alert("Congratulations !");
+    playerWonDiv.style.display ="block";
         
 }
 
 //Le joueur a perdu, on affiche les bombes
 function playerLost(){
-        var imageBombTile = document.createElement("img");
-        imageBombTile.src = "./image/bombTile.png";
-        for (let x = 0 ; x < gameSize ; x++) {
-            for (let y = 0 ; y < gameSize ; y++) {
-                if(hiddenTileArray[x][y].value >= 10){
-                    imageBombTile.addEventListener('load', function(){
-                    ctx.drawImage(imageBombTile, x*45, y*48, 45, 48,);
-                    }, false);
-                }
+
+    didPlayerLost = true;
+    var imageBombTile = document.createElement("img");
+    imageBombTile.src = "./image/bombTile.png";
+    for (let x = 0 ; x < gameSize ; x++) {
+        for (let y = 0 ; y < gameSize ; y++) {
+            if(hiddenTileArray[x][y].value >= 10){
+                imageBombTile.addEventListener('load', function(){
+                ctx.drawImage(imageBombTile, x*45, y*48, 45, 48,);
+                }, false);
             }
         }
-        document.getElementById('retryButton').style.display = "block";
+    }
+    document.getElementById('retryButton').style.display = "block";
+
 }
 
 //fonction qui va renvoyer la position du curseur en x,y dans un tableau
