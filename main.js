@@ -58,6 +58,10 @@ tryAgainButton.addEventListener('click', () =>{
     start();
 })
 
+playerWonDiv.addEventListener('click', () =>{
+    start();
+})
+
 //Cette fonction lancer la partie en fonction des parametres
   function start() {
 
@@ -73,7 +77,7 @@ tryAgainButton.addEventListener('click', () =>{
             break;
     }
     didPlayerLost = false;
-    bombsNumber = gameSize*2;
+    bombsNumber = 2;
     tileToDiscover = gameSize*gameSize - bombsNumber;
     tileDiscovered = 0;
     tryAgainButton.style.display = "none";
