@@ -67,17 +67,18 @@ playerWonDiv.addEventListener('click', () =>{
 
     switch (difficulty){
         case "easy":     
-            gameSize = 7;
+            gameSize = 8;
             break;
         case "normal":
-            gameSize = 10;
+            gameSize = 12;
             break;
         case "hard":
-            gameSize = 15;
+            gameSize = 16;
             break;
     }
+
     didPlayerLost = false;
-    bombsNumber = 2;
+    bombsNumber = gameSize*(gameSize/8);
     tileToDiscover = gameSize*gameSize - bombsNumber;
     tileDiscovered = 0;
     tryAgainButton.style.display = "none";
