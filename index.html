@@ -7,16 +7,26 @@
 </head>
 
 <body>
-    <hi>playGround - Démineur</hi>
-    <br>Choisissez une difficulté : </br>
-    <div>
+
+   <p class="bienvenue">Bienvenue sur mon Démineur</p>
+
+    <div class="button">   
         <button id="easyDifficultyButton">Facile</button>
         <button id="normalDifficultyButton">Moyen</button>
         <button id="hardDifficultyButton">Difficile</button>
     </div>
-    <canvas id="c1"></canvas>
+    <div class="canvasplace">
+        <a class="compteur" id="compteur"></a>
+        <img class="bomb" src="./image/bombTileHud.png">
+        <div class="canvasborder">
+             <canvas id="c1"></canvas>
+        </div>
+    </div>
+    <button style="display: none" id="retryButton">Try again !</button>
 </body>
+
 <div>
     <script src="main.js"></script>
 </div>
+
 </html>

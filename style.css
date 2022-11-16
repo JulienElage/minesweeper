@@ -1,14 +1,58 @@
-button {
-    background-color : gray;
-    color : white;
-    width: fit-content;
-    height: fit-content;
+p.bienvenue {
+    color: black;
+    font-size: larger;
+    margin-top: 2%;
+    margin-bottom: 1%;
+    text-align: center;
 }
 
-canvas {
-    background-color:white;
-    margin-left: 10%;
-    margin-top: 10%;
-    margin-bottom: 10%;
-    margin-right: 10%;
+button {
+    background-color : lightblue;
+    color : black;
+    width: fit-content;
+    height: fit-content;
+    font-size: large;
+    margin-inline:  2%;
+    border-color: lightblue;
+}
+
+div.button {
+  text-align: center;
+  background-color: lightblue;
+}
+
+div.canvasplace {
+    text-align: center;
+    margin: 3%;
+}
+
+div.canvasborder {
+    display: inline-block;
+    background-color: rgba(3, 100, 95, 0.26);
+    width: fit-content;
+    border-top: 100px solid rgba(3, 100, 95, 0.26);
+    border-left: 15px solid rgba(39, 128, 150, 0.562);
+    border-right: 15px solid rgba(39, 128, 150, 0.596);
+    border-bottom: 10px solid rgba(3, 100, 95, 0.26);
+}
+div.compteur {
+    position: absolute;
+}
+
+img.bomb {
+    position: absolute;
+    margin: 1%;
+}
+
+a.compteur {
+    font-weight: bold;
+    background-color: rgb(3, 100, 95);
+    border-left: 10px solid rgb(3, 100, 95);
+    border-right: 10px solid rgb(3, 100, 95);
+    border-top: 11px solid rgb(3, 100, 95);
+    border-bottom: 12px solid rgb(3, 100, 95);
+    font-size: larger;
+    position: absolute;
+    margin-top: 1%;
+    margin-left: 4%;
 }
