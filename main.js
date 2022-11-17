@@ -2,8 +2,10 @@
 const easyDifficultyButton = document.getElementById('easyDifficultyButton');
 const normalDifficultyButton = document.getElementById('normalDifficultyButton');
 const hardDifficultyButton = document.getElementById('hardDifficultyButton');
-const tryAgainButton = document.getElementById('retryButton');
-const playerWonDiv = document.getElementById('playerWin');
+const playerLostDiv = document.getElementById('retryDiv');
+const playerWonDiv = document.getElementById('playerWinDiv');
+const retryButton = document.getElementById('retryButton');
+const playAgainButton = document.getElementById('playAgainButton');
 const canvas = document.querySelector('canvas')
 var didPlayerLost = false;
 var hiddenTileArray;
@@ -59,12 +61,12 @@ hardDifficultyButton.addEventListener('click', () => {
 })
 
 //L'utilisateur clic sur le boutton pour lancer une nouvelle partie
-tryAgainButton.addEventListener('click', () =>{
+retryButton.addEventListener('click', () =>{
     start();
 })
 
 //L'utilisateur à gagner, il clic sur le boutton pour lancer une nouvelle partie
-playerWonDiv.addEventListener('click', () =>{
+playAgainButton.addEventListener('click', () =>{
     start();
 })
 
@@ -88,7 +90,7 @@ playerWonDiv.addEventListener('click', () =>{
     bombsNumber = (gameSize*gameSize*1/6);
     tileToDiscover = gameSize*gameSize - bombsNumber;
     tileDiscovered = 0;
-    tryAgainButton.style.display = "none";
+    playerLostDiv.style.display = "none";
     playerWonDiv.style.display = "none";
     hiddenTileArray = createHiddenTileArray();
     displayTiles();
@@ -157,15 +159,46 @@ function userLeftClickedOnTile(x,y){
             imageDiscoveredTile.addEventListener('load', function(){
                 ctx.drawImage(imageDiscoveredTile, x*45, y*48, 45, 48,);
                 //On écrit la valeur de la tuile si elle est suppérieur à 0
-                if(value > 0){
-                    ctx.font = "10px Arial";
-                    ctx.textAlign = "center";
-                    ctx.fillText(value, x*45+22.5,y*48+24);
+                switch(true){
+                    case (value == 0):
+                        discovedAdjacentTiles(x,y);
+                        break;
+                    case (value ==1):
+                        ctx.fillStyle = "green"
+                        ctx.font = "15px Arial";
+                        ctx.textAlign = "center";
+                        ctx.fillText(value, x*45+22.5,y*48+24);
+                        break;
+                    case (value ==2):
+                        ctx.fillStyle = "blue";
+                        ctx.font = "15px Arial";
+                        ctx.textAlign = "center";
+                        ctx.fillText(value, x*45+22.5,y*48+24);
+                        break;
+                    case (value == 3):
+                        ctx.fillStyle = "purple";
+                        ctx.font = "15px Arial";
+                        ctx.textAlign = "center";
+                        ctx.fillText(value, x*45+22.5,y*48+24);
+                        break;
+                    case (value > 3):
+                        ctx.fillStyle = "darkred";
+                        ctx.font = "15px Arial";
+                        ctx.textAlign = "center";
+                        ctx.fillText(value, x*45+22.5,y*48+24);
+                        break;
                 }
-                //Sinon on découvre les tuiles adjacentes.
-                else {
-                    discovedAdjacentTiles(x,y)
-                }
+
+                // if(value > 0){
+                //     ctx.fillStyle
+                //     ctx.font = "15px Arial";
+                //     ctx.textAlign = "center";
+                //     ctx.fillText(value, x*45+22.5,y*48+24);
+                // }
+                // //Sinon on découvre les tuiles adjacentes.
+                // else {
+                //     discovedAdjacentTiles(x,y)
+                // }
             }, false);
             //On vérifie si le joueur a gagné
             if(tileDiscovered == tileToDiscover && bombsNumber == 0){
@@ -331,7 +364,7 @@ function playerLost(){
             }
         }
     }
-    document.getElementById('retryButton').style.display = "block";
+    playerLostDiv.style.display = "block";
 
 }
 

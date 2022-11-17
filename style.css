@@ -64,12 +64,12 @@ button {
     margin-left: 4%;
 }
 
-.playerWin{
+.playerWinDiv{
     text-align: center;
     margin: 2%;
 }
 
-.retryButton{
+.retryDiv{
     text-align: center;
     margin: 2%;
 }
