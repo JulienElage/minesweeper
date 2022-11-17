@@ -6,7 +6,13 @@ const playerLostDiv = document.getElementById('retryDiv');
 const playerWonDiv = document.getElementById('playerWinDiv');
 const retryButton = document.getElementById('retryButton');
 const playAgainButton = document.getElementById('playAgainButton');
-const canvas = document.querySelector('canvas')
+const canvas = document.querySelector('canvas');
+let chrono = document.getElementById('chrono');
+let isRunning = false;
+let hours = 0;
+let minutes = 0;
+let seconds = 0;
+let timeout;
 var didPlayerLost = false;
 var hiddenTileArray;
 let gameSize = 0;
@@ -84,7 +90,7 @@ playAgainButton.addEventListener('click', () =>{
             gameSize = 18;
             break;
     }
-
+    resetChrono();
     firstClick = false;
     didPlayerLost = false;
     bombsNumber = (gameSize*gameSize*1/6);
@@ -132,8 +138,10 @@ canvas.addEventListener('dblclick', function(e) {
 
 //Fonction qui va découvrir la tuile, si elle ne l'est pas déjà, et si elle n'est pas marquée (drapeau ou '?').
 function userLeftClickedOnTile(x,y){
-    //Lors du premier clic on place les bombes et on attribue la valeur des tuiles
+    //Lors du premier clic on lance le chrono, on place les bombes et on attribue la valeur des tuiles
     if(firstClick == false) {
+        isRunning = true;
+        startChrono();
         placeBombs(x,y);
         setTilesNumber();
         firstClick = true;
@@ -158,11 +166,12 @@ function userLeftClickedOnTile(x,y){
             imageDiscoveredTile.src = "./image/discoveredTile.jpg";
             imageDiscoveredTile.addEventListener('load', function(){
                 ctx.drawImage(imageDiscoveredTile, x*45, y*48, 45, 48,);
-                //On écrit la valeur de la tuile si elle est suppérieur à 0
                 switch(true){
+                    //Si la valeur de la tuile est 0, on découvre les cases adjacentes
                     case (value == 0):
                         discovedAdjacentTiles(x,y);
                         break;
+                     //On écrit la valeur de la tuile si elle est suppérieur à 0, en variant les couleurs
                     case (value ==1):
                         ctx.fillStyle = "green"
                         ctx.font = "15px Arial";
@@ -188,17 +197,6 @@ function userLeftClickedOnTile(x,y){
                         ctx.fillText(value, x*45+22.5,y*48+24);
                         break;
                 }
-
-                // if(value > 0){
-                //     ctx.fillStyle
-                //     ctx.font = "15px Arial";
-                //     ctx.textAlign = "center";
-                //     ctx.fillText(value, x*45+22.5,y*48+24);
-                // }
-                // //Sinon on découvre les tuiles adjacentes.
-                // else {
-                //     discovedAdjacentTiles(x,y)
-                // }
             }, false);
             //On vérifie si le joueur a gagné
             if(tileDiscovered == tileToDiscover && bombsNumber == 0){
@@ -345,13 +343,15 @@ function checkAdjacentMarkedBomb(x,y) {
 //Le joueur a gagné, on affiche un block spécial
 function playerWon(){
 
+    stopChrono();
     playerWonDiv.style.display ="block";
         
 }
 
 //Le joueur a perdu, on affiche toutes les bombes, et un block spécial
 function playerLost(){
-
+    isRunning = false;
+    stopChrono();
     didPlayerLost = true;
     var imageBombTile = document.createElement("img");
     imageBombTile.src = "./image/bombTile.png";
@@ -485,4 +485,54 @@ function randomInt(max) {
 
     return Math.floor(Math.random() * (max + 1));
 
+}
+
+//Fonction chrono qui affiche le temps passé toutes les secondes
+function startChrono() {
+    if(isRunning == true){
+        seconds = parseInt(seconds);
+        hours = parseInt(hours);
+        minutes = parseInt(minutes);
+
+        seconds++;
+
+        if(seconds == 60){
+            minutes++
+            seconds = 0;
+        }
+
+        if(minutes == 60){
+            hours++
+            minutes = 0;
+        }
+        if(seconds < 10){
+            seconds = "0" + seconds;
+        }
+        if(minutes < 10){
+            minutes = "0" + minutes
+        }
+        if(hours < 10){
+            hours = "0" + hours
+        }
+        chrono.textContent = `${hours}:${minutes}:${seconds}`
+
+        setTimeout(startChrono, 1000);
+    }
+    
+}
+
+//fonction qui arrête le chrono
+function stopChrono() {
+    isRunning = false;
+    chrono.textContent = `${hours}:${minutes}:${seconds}`
+}
+
+//Fonction qui remet le chrono à 00:00:00
+function resetChrono() {
+        isRunning = false;
+        chrono.textContent = "00:00:00";
+        hours = "0";
+        minutes = "0";
+        seconds = "0";
+        clearTimeout(timeout);
 }
