@@ -13,14 +13,18 @@ let bombsNumber = 0;
 let tileDiscovered = 0;
 let tileToDiscover = 0;
 let ctx = canvas.getContext('2d');
+let firstClick = false;
 
 class Tile {
     value = 0;
     isDiscovered = false;
-    constructor(value, isDiscovered, isMarked) {
+    isMarked =0;
+    isDblClicked = false;
+    constructor(value, isDiscovered, isMarked, isDblClicked) {
         this.value = value;
-        this.isDiscovered = isDiscovered
-        this.isMarked = isMarked
+        this.isDiscovered = isDiscovered;
+        this.isMarked = isMarked;
+        this.isTest = isDblClicked;
     }
 }
 
@@ -67,26 +71,24 @@ playerWonDiv.addEventListener('click', () =>{
 
     switch (difficulty){
         case "easy":     
-            gameSize = 8;
+            gameSize = 6;
             break;
         case "normal":
             gameSize = 12;
             break;
         case "hard":
-            gameSize = 16;
+            gameSize = 18;
             break;
     }
-
+    firstClick = false;
     didPlayerLost = false;
-    bombsNumber = gameSize*(gameSize/8);
+    bombsNumber = (gameSize*gameSize*1/6);
     tileToDiscover = gameSize*gameSize - bombsNumber;
     tileDiscovered = 0;
     tryAgainButton.style.display = "none";
     playerWonDiv.style.display = "none";
     hiddenTileArray = createHiddenTileArray();
     displayTiles();
-    placeBombs();
-    setTilesNumber();
 }
 
 //L'utilisateur fait un clic gauche sur une tuile, on envoie la position du clic
@@ -111,11 +113,27 @@ canvas.addEventListener('contextmenu', function(e) {
 
 })
 
+canvas.addEventListener('dblclick', function(e) {
+
+    var position = new Position;
+    position = getPosition(canvas, e);
+    x = Math.floor(position.x/45);
+    y = Math.floor(position.y/48);
+    userDoubleClickedOnTile(x,y);
+
+})
+
 //Fonction qui va découvrir la tuile, si elle ne l'est pas déjà, et si elle n'est pas marquée (drapeau ou '?').
 function userLeftClickedOnTile(x,y){
-
+    //Lors du premier clic on place les bombes et on attribue la valeur des tuiles
+    if(firstClick == false) {
+        placeBombs(x,y);
+        setTilesNumber();
+        firstClick = true;
+    }
     if(hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 0 && didPlayerLost == false){
         hiddenTileArray[x][y].isDiscovered = true;
+        //On vérifie si le joueur clique sur une bombe, si oui on affiche une bombe sur la tuile.
         if(hiddenTileArray[x][y].value >= 10){
                 playerLost();
                 var imageBombOnClick = document.createElement("img");
@@ -125,64 +143,30 @@ function userLeftClickedOnTile(x,y){
                     }, false);
         } 
         else {
+            tileDiscovered++;
+            //On affiche une image de tuile découverte
             var imageDiscoveredTile = document.createElement("img");
             imageDiscoveredTile.src = "./image/discoveredTile.jpg";
             imageDiscoveredTile.addEventListener('load', function(){
             ctx.drawImage(imageDiscoveredTile, x*45, y*48, 45, 48,);
+            //On écrit la valeur de la tuile si elle est suppérieur à 0, sinon on découvre les tuiles adjacentes.
             let value = hiddenTileArray[x][y].value;
             ctx.font = "10px Arial";
             ctx.textAlign = "center";
-            if(value != 0){
+            if(value > 0){
             ctx.fillText(value, x*45+22.5,y*48+24);
             }
+            else {
+                discovedAdjacentTiles(x,y)
+            }
             }, false);
-            tileDiscovered++;
+            //On vérifie si le joueur a gagné
             if(tileDiscovered == tileToDiscover && bombsNumber == 0){
                 playerWon();
+            }
+        
         }
-
-        if(hiddenTileArray[x][y].value == 0) {
-             tileIsSetToZero(x,y)
-        }
-        
     }
-}
-}
-
-function tileIsSetToZero(x,y) {
-
-    if(x+1 <= gameSize-1) {
-        userLeftClickedOnTile(x+1,y);
-    }
-        
-    if(x+1 <= gameSize-1 && y+1 <= gameSize-1) {
-        userLeftClickedOnTile(x+1,y+1);
-    }
-        
-    if(x+1 <= gameSize-1 && y-1 >= 0) {
-        userLeftClickedOnTile(x+1,y-1);
-    }
-        
-    if(x-1 >= 0) {
-        userLeftClickedOnTile(x-1,y);
-    }
-        
-    if(x-1 >= 0 && y-1 >= 0){
-        userLeftClickedOnTile(x-1,y-1);
-    }
-        
-    if(x-1 >= 0 && y+1 <= gameSize-1) {
-        userLeftClickedOnTile(x-1,y+1);
-    }
-        
-    if(y+1 <= gameSize-1) {
-        userLeftClickedOnTile(x,y+1);
-    }
-       
-    if(y-1 >= 0) {
-        userLeftClickedOnTile(x,y-1);
-    }
-
 }
 
 //Fonction qui marque la tuile avec d'abord un drapeau puis un '?', puis elle revient à la normale.
@@ -225,6 +209,95 @@ function userRightClickedOnTile(x,y){
     }
 
 }
+
+function userDoubleClickedOnTile(x,y) {
+    console.log("db click");
+    if(hiddenTileArray[x][y].isDiscovered == true && hiddenTileArray[x][y].isTest == false) {
+        if(checkAdjacentMarkedBomb(x,y)) {
+            hiddenTileArray[x][y].isTest = true;
+            discovedAdjacentTiles(x,y);
+        }
+    }
+}
+
+function discovedAdjacentTiles(x,y) {
+
+    if(x+1 <= gameSize-1) {
+        userLeftClickedOnTile(x+1,y);
+    }
+        
+    if(x+1 <= gameSize-1 && y+1 <= gameSize-1) {
+        userLeftClickedOnTile(x+1,y+1);
+    }
+        
+    if(x+1 <= gameSize-1 && y-1 >= 0) {
+        userLeftClickedOnTile(x+1,y-1);
+    }
+        
+    if(x-1 >= 0) {
+        userLeftClickedOnTile(x-1,y);
+    }
+        
+    if(x-1 >= 0 && y-1 >= 0){
+        userLeftClickedOnTile(x-1,y-1);
+    }
+        
+    if(x-1 >= 0 && y+1 <= gameSize-1) {
+        userLeftClickedOnTile(x-1,y+1);
+    }
+        
+    if(y+1 <= gameSize-1) {
+        userLeftClickedOnTile(x,y+1);
+    }
+       
+    if(y-1 >= 0) {
+        userLeftClickedOnTile(x,y-1);
+    }
+
+}
+
+function checkAdjacentMarkedBomb(x,y) {
+    var adjacentBombMarked = 0;
+    if(x+1 <= gameSize-1 && hiddenTileArray[x+1][y].isMarked == 1) {
+        adjacentBombMarked++
+    }
+        
+    if(x+1 <= gameSize-1 && y+1 <= gameSize-1 && hiddenTileArray[x+1][y+1].isMarked == 1) {
+        adjacentBombMarked++
+    }
+        
+    if(x+1 <= gameSize-1 && y-1 >= 0 && hiddenTileArray[x+1][y-1].isMarked == 1) {
+        adjacentBombMarked++
+    }
+        
+    if(x-1 >= 0 && hiddenTileArray[x-1][y].isMarked == 1) {
+        adjacentBombMarked++
+    }
+        
+    if(x-1 >= 0 && y-1 >= 0 && hiddenTileArray[x-1][y-1].isMarked == 1){
+        adjacentBombMarked++
+    }
+        
+    if(x-1 >= 0 && y+1 <= gameSize-1 && hiddenTileArray[x-1][y+1].isMarked == 1) {
+        adjacentBombMarked++
+    }
+        
+    if(y+1 <= gameSize-1 && hiddenTileArray[x][y+1].isMarked == 1) {
+        adjacentBombMarked++
+    }
+       
+    if(y-1 >= 0 && hiddenTileArray[x][y-1].isMarked == 1) {
+        adjacentBombMarked++
+    }
+    if(adjacentBombMarked == hiddenTileArray[x][y].value) {
+        return true;
+    } else {
+        return false;
+    }
+    
+}
+
+
 
 //Le joueur a gagné
 function playerWon(){
@@ -293,7 +366,7 @@ function createHiddenTileArray() {
     //On a créé un tableau vide.
     for(let i = 0; i < gameSize ; i++) {
         for(let j = 0; j < gameSize ; j++){
-            tileArrayHidden[i][j] = new Tile(0,false,0);
+            tileArrayHidden[i][j] = new Tile(0,false,0,false);
         }
         //On a initialisé à 0.  
     } 
@@ -302,14 +375,15 @@ function createHiddenTileArray() {
 }
 
 //Fonction qui place le nombre 10 (qui représente les bombes) à un emplacement aléatoire dans le tableau. On répète l'opération en fonction de la difficulté.
-function placeBombs() {
+function placeBombs(x,y) {
     for (let i = 0; i < bombsNumber; i++){
         a = randomInt(gameSize-1);
         b = randomInt(gameSize-1);
-        if(hiddenTileArray[a][b].value != 10){
-            hiddenTileArray[a][b].value = 10;
-        } else i--;
-    }
+            if(hiddenTileArray[a][b].value != 10 && (a != x || b != y)){
+                hiddenTileArray[a][b].value = 10;
+            }
+            else i--;
+        }
 
 }
 
@@ -353,8 +427,8 @@ function setTilesNumber() {
                 }
   
             }
-
     }
+    console.log(hiddenTileArray)
 }
 
 //Fonction qui renvoie un nombre aléatoire (pas besoin d'un minimum, car c'est 0 dans notre cas).
