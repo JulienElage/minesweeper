@@ -58,15 +58,17 @@ hardDifficultyButton.addEventListener('click', () => {
     start();
 })
 
+//L'utilisateur clic sur le boutton pour lancer une nouvelle partie
 tryAgainButton.addEventListener('click', () =>{
     start();
 })
 
+//L'utilisateur à gagner, il clic sur le boutton pour lancer une nouvelle partie
 playerWonDiv.addEventListener('click', () =>{
     start();
 })
 
-//Cette fonction lancer la partie en fonction des parametres
+//Cette fonction lance la partie en fonction des parametres
   function start() {
 
     switch (difficulty){
@@ -80,6 +82,7 @@ playerWonDiv.addEventListener('click', () =>{
             gameSize = 18;
             break;
     }
+
     firstClick = false;
     didPlayerLost = false;
     bombsNumber = (gameSize*gameSize*1/6);
@@ -96,9 +99,10 @@ canvas.addEventListener('click', function(e) {
 
     var position = new Position;
     position = getPosition(canvas, e);
-    x = Math.floor(position.x/45);
-    y = Math.floor(position.y/48);
+    x = position.x
+    y = position.y
     userLeftClickedOnTile(x,y);
+
 })
 
 //L'utilisateur fait un clic droit sur une tuile, on envoie la position du clic
@@ -106,19 +110,20 @@ canvas.addEventListener('contextmenu', function(e) {
 
     var position = new Position;
     position = getPosition(canvas, e);
-    x = Math.floor(position.x/45);
-    y = Math.floor(position.y/48);
+    x = position.x
+    y = position.y
     userRightClickedOnTile(x,y);
     e.preventDefault();
 
 })
 
+//L'utilisateur fait un double clic gauche sur une tuile, on envoie la position du clic
 canvas.addEventListener('dblclick', function(e) {
 
     var position = new Position;
     position = getPosition(canvas, e);
-    x = Math.floor(position.x/45);
-    y = Math.floor(position.y/48);
+    x = position.x
+    y = position.y
     userDoubleClickedOnTile(x,y);
 
 })
@@ -131,6 +136,7 @@ function userLeftClickedOnTile(x,y){
         setTilesNumber();
         firstClick = true;
     }
+    //On vérifie si la case n'est pas déjà découverte, et si elle est marquée, et si le joueur a perdu.
     if(hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 0 && didPlayerLost == false){
         hiddenTileArray[x][y].isDiscovered = true;
         //On vérifie si le joueur clique sur une bombe, si oui on affiche une bombe sur la tuile.
@@ -143,36 +149,38 @@ function userLeftClickedOnTile(x,y){
                     }, false);
         } 
         else {
+            //Sinon on affiche une image de tuile découverte
             tileDiscovered++;
-            //On affiche une image de tuile découverte
+            let value = hiddenTileArray[x][y].value;
             var imageDiscoveredTile = document.createElement("img");
             imageDiscoveredTile.src = "./image/discoveredTile.jpg";
             imageDiscoveredTile.addEventListener('load', function(){
-            ctx.drawImage(imageDiscoveredTile, x*45, y*48, 45, 48,);
-            //On écrit la valeur de la tuile si elle est suppérieur à 0, sinon on découvre les tuiles adjacentes.
-            let value = hiddenTileArray[x][y].value;
-            ctx.font = "10px Arial";
-            ctx.textAlign = "center";
-            if(value > 0){
-            ctx.fillText(value, x*45+22.5,y*48+24);
-            }
-            else {
-                discovedAdjacentTiles(x,y)
-            }
+                ctx.drawImage(imageDiscoveredTile, x*45, y*48, 45, 48,);
+                //On écrit la valeur de la tuile si elle est suppérieur à 0
+                if(value > 0){
+                    ctx.font = "10px Arial";
+                    ctx.textAlign = "center";
+                    ctx.fillText(value, x*45+22.5,y*48+24);
+                }
+                //Sinon on découvre les tuiles adjacentes.
+                else {
+                    discovedAdjacentTiles(x,y)
+                }
             }, false);
             //On vérifie si le joueur a gagné
             if(tileDiscovered == tileToDiscover && bombsNumber == 0){
                 playerWon();
             }
-        
         }
     }
+
 }
 
 //Fonction qui marque la tuile avec d'abord un drapeau puis un '?', puis elle revient à la normale.
 function userRightClickedOnTile(x,y){
+    //En fonction des cas, on affiche la tuile avec un drapeau, ou avec un '?' ou non découverte.
     switch (true){
-
+        //On vérifie si la tuile est déjà découverte, et si elle n'est pas marqué, et si le joueur n'a pas perdu, si oui on l'affiche avec un drapeau
         case hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 0 && didPlayerLost == false:
             var imageMarkedTile = document.createElement("img");
             imageMarkedTile.src = "./image/markedTile.jpg";
@@ -187,6 +195,7 @@ function userRightClickedOnTile(x,y){
             }
             break;
 
+        //On vérifie si la tuile est déjà découverte, et si elle est déjà marqué d'un drapeau, et si le joueur n'a pas perdu, si oui on l'affiche avec un '?'
         case hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 1 && didPlayerLost == false:
             var imageQuestionningTile = document.createElement("img");
             imageQuestionningTile.src = "./image/questionningTile.jpg";
@@ -198,6 +207,7 @@ function userRightClickedOnTile(x,y){
             document.getElementById('compteur').innerHTML = bombsNumber;
             break;
 
+        //On vérifie si la tuile est déjà découverte, et si elle est déjà marqué d'un '?', et si le joueur n'a pas perdu, si oui on l'affiche non découverte
         case hiddenTileArray[x][y].isDiscovered == false && hiddenTileArray[x][y].isMarked == 2 && didPlayerLost == false:
             var imageTile = document.createElement("img");
             imageTile.src = "./image/tile.jpg";
@@ -210,9 +220,9 @@ function userRightClickedOnTile(x,y){
 
 }
 
+//Fonction qui découvre les tuiles adjacentes, si on a marqué le bon nombre de tuiles adjacentes
 function userDoubleClickedOnTile(x,y) {
-    console.log("db click");
-    if(hiddenTileArray[x][y].isDiscovered == true && hiddenTileArray[x][y].isTest == false) {
+    if(hiddenTileArray[x][y].isDiscovered == true && hiddenTileArray[x][y].isDblClicked == false) {
         if(checkAdjacentMarkedBomb(x,y)) {
             hiddenTileArray[x][y].isTest = true;
             discovedAdjacentTiles(x,y);
@@ -220,6 +230,7 @@ function userDoubleClickedOnTile(x,y) {
     }
 }
 
+//Fonction qui va découvrir les cases adjacentes
 function discovedAdjacentTiles(x,y) {
 
     if(x+1 <= gameSize-1) {
@@ -256,6 +267,7 @@ function discovedAdjacentTiles(x,y) {
 
 }
 
+//fonction qui va retourner vrai si le nombre de bombes adjacentes est bien le nombre de tuiles adjacentes marquées
 function checkAdjacentMarkedBomb(x,y) {
     var adjacentBombMarked = 0;
     if(x+1 <= gameSize-1 && hiddenTileArray[x+1][y].isMarked == 1) {
@@ -297,16 +309,14 @@ function checkAdjacentMarkedBomb(x,y) {
     
 }
 
-
-
-//Le joueur a gagné
+//Le joueur a gagné, on affiche un block spécial
 function playerWon(){
 
     playerWonDiv.style.display ="block";
         
 }
 
-//Le joueur a perdu, on affiche les bombes
+//Le joueur a perdu, on affiche toutes les bombes, et un block spécial
 function playerLost(){
 
     didPlayerLost = true;
@@ -325,12 +335,13 @@ function playerLost(){
 
 }
 
-//fonction qui va renvoyer la position du curseur en x,y dans un tableau
+//fonction qui va renvoyer la position du curseur en x,y
 function getPosition(canvas, event) {
 
     const rect = canvas.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
+    //Calcul de la position en nombres entiers
+    const x = Math.floor((event.clientX - rect.left)/45)
+    const y = Math.floor((event.clientY - rect.top)/48)
     let position = new Position;
     position.x = x
     position.y = y
@@ -338,12 +349,15 @@ function getPosition(canvas, event) {
 
 }
 
-//Fonction qui affiche un nombre d'images de tuiles en fonction de la difficulté.
+//Fonction qui affiche le nombre de tuiles en fonction de la difficulté.
 function displayTiles() {
 
+    //Chaque image faut 45*48 pixel, on calcul la taille du canvas
     ctx.canvas.width  = gameSize*45;
     ctx.canvas.height = gameSize*48;
+    //On affiche le nombre de bombes
     document.getElementById('compteur').innerHTML = bombsNumber;
+    //On affiche toutes les tuiles
     for (let x = 0; x < gameSize; x++) {
         for (let y = 0; y < gameSize; y++) {
         var imageTile = document.createElement("img");
@@ -355,35 +369,37 @@ function displayTiles() {
     }
 }
 
-//Fonction qui crée un tableau 7*7 ou 10*10 ou 15*15 en fonction de la difficulté choisie et l'initialise à 0 partout.
+//Fonction qui crée un tableau de tuiles caché en fonction de la difficulté choisie et l'initialise
 function createHiddenTileArray() {
     
-    var tileArrayHidden = new Array(gameSize)
+    var hiddenTileArray = new Array(gameSize)
 
     for (let i = 0; i < gameSize; i++){
-        tileArrayHidden[i] = new Array(gameSize);
+        hiddenTileArray[i] = new Array(gameSize);
     }
     //On a créé un tableau vide.
     for(let i = 0; i < gameSize ; i++) {
         for(let j = 0; j < gameSize ; j++){
-            tileArrayHidden[i][j] = new Tile(0,false,0,false);
-        }
-        //On a initialisé à 0.  
+            //On initialise à valeur 0, non découverte, non marqué, non double cliqué
+            hiddenTileArray[i][j] = new Tile(0,false,0,false);
+        } 
     } 
-    return tileArrayHidden;
+    return hiddenTileArray;
 
 }
 
 //Fonction qui place le nombre 10 (qui représente les bombes) à un emplacement aléatoire dans le tableau. On répète l'opération en fonction de la difficulté.
 function placeBombs(x,y) {
+
     for (let i = 0; i < bombsNumber; i++){
         a = randomInt(gameSize-1);
         b = randomInt(gameSize-1);
-            if(hiddenTileArray[a][b].value != 10 && (a != x || b != y)){
-                hiddenTileArray[a][b].value = 10;
-            }
-            else i--;
+        //On vérifie qu'il n'y est pas déjà une bombe sur l'emplacement et que celui-ci n'est pas le même que le premier clic
+        if(hiddenTileArray[a][b].value != 10 && (a != x || b != y)){
+             hiddenTileArray[a][b].value = 10;
         }
+        else i--;
+    }
 
 }
 
@@ -393,7 +409,7 @@ function setTilesNumber() {
     for(let i = 0 ; i < gameSize ; i++){
 
         for(let j = 0 ; j < gameSize ; j++){
-
+                //On doit vérifier à chaque fois que la tuile adjacente existe, car ce n'est pas toujours le cas pour les cases en bord de tableau
                 if(i+1 <= gameSize-1 && hiddenTileArray[i+1][j].value >= 10) {
                     hiddenTileArray[i][j].value += 1
                 }

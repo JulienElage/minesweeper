@@ -16,17 +16,17 @@ button {
     border-color: lightblue;
 }
 
-div.button {
+.button {
   text-align: center;
   background-color: lightblue;
 }
 
-div.canvasplace {
+.canvasplace {
     text-align: center;
     margin: 3%;
 }
 
-div.canvasborder {
+.canvasborder {
     display: inline-block;
     background-color: rgba(3, 100, 95, 0.26);
     width: fit-content;
@@ -35,16 +35,23 @@ div.canvasborder {
     border-right: 15px solid rgba(39, 128, 150, 0.596);
     border-bottom: 10px solid rgba(3, 100, 95, 0.26);
 }
-div.compteur {
-    position: absolute;
-}
 
-img.bomb {
+.image_bomb {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     position: absolute;
     margin: 1%;
 }
 
-a.compteur {
+.compteur {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     font-weight: bold;
     background-color: rgb(3, 100, 95);
     border-left: 10px solid rgb(3, 100, 95);
@@ -57,12 +64,12 @@ a.compteur {
     margin-left: 4%;
 }
 
-div.playerWin{
+.playerWin{
     text-align: center;
     margin: 2%;
 }
 
-div.retryButton{
+.retryButton{
     text-align: center;
     margin: 2%;
 }
