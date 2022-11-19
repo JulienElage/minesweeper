@@ -5,6 +5,7 @@ var player;
 
 class Game {
 
+    //Valeurs par défaut
     gameSize = 0;
     hiddenTileArray;
     didPlayerLost = false;
@@ -14,8 +15,9 @@ class Game {
     firstClick = false;
 
     constructor(difficulty) {
-       
+        //À chaque instance de Game, on lui donne une difficulté, avec cela on va calculer les paramétres de la partie.
         this.difficulty = difficulty;
+
         switch (this.difficulty){
             case "easy":     
                 this.gameSize = 6;
@@ -38,6 +40,7 @@ class Game {
     
     }
 
+    //Fonction qui affiche le nombre de tuiles en fonction de la difficulté.
     displayTiles() {
 
         //Chaque image faut 45*48 pixel, on calcul la taille du canvas
@@ -57,6 +60,7 @@ class Game {
         }
     }
 
+    //Fonction qui crée un tableau de tuiles caché en fonction de la difficulté choisie et l'initialise
     createHiddenTileArray() {
         this.hiddenTileArray = new Array(this.gameSize)
     
@@ -72,8 +76,9 @@ class Game {
         } 
     }
 
+    //Fonction qui va découvrir la tuile, si elle ne l'est pas déjà, et si elle n'est pas marquée (drapeau ou '?').
     userLeftClickedOnTile(x,y) {
-
+        //Lors du premier clic on lance le chrono, on place les bombes et on attribue la valeur des tuiles
         if(this.firstClick == false) {
             chrono.isRunning = true;
             chrono.startChrono();
@@ -81,6 +86,7 @@ class Game {
             this.setTilesNumber();
             this.firstClick = true;
         }
+        //On vérifie si la case n'est pas déjà découverte, et si elle est marquée, et si le joueur a perdu.
         if(this.hiddenTileArray[x][y].isDiscovered == false && this.hiddenTileArray[x][y].isMarked == 0 && this.didPlayerLost == false){
             this.hiddenTileArray[x][y].isDiscovered = true;
             //On vérifie si le joueur clique sur une bombe, si oui on affiche une bombe sur la tuile.
@@ -140,6 +146,7 @@ class Game {
         }
     }
 
+    //Fonction qui marque la tuile avec d'abord un drapeau puis un '?', puis elle revient à la normale.
     userRightClickedOnTile(x,y) {
         switch (true){
             //On vérifie si la tuile est déjà découverte, et si elle n'est pas marqué, et si le joueur n'a pas perdu, si oui on l'affiche avec un drapeau
@@ -181,6 +188,7 @@ class Game {
         }
     }
 
+    //Fonction qui découvre les tuiles adjacentes, si on a marqué le bon nombre de tuiles adjacentes
     userDoubleClickedOnTile(x,y){
 
         if(this.hiddenTileArray[x][y].isDiscovered == true && this.hiddenTileArray[x][y].isDblClicked == false) {
@@ -192,6 +200,7 @@ class Game {
 
     }
 
+    //fonction qui va retourner vrai si le nombre de bombes adjacentes est bien le nombre de tuiles adjacentes marquées
     checkAdjacentMarkedBomb(x,y) {
 
         var adjacentBombMarked = 0;
@@ -233,6 +242,7 @@ class Game {
         }
     }
 
+    //Fonction qui va découvrir les cases adjacentes
     discoverAdjacentTiles(x,y) {
 
         if(x+1 <= this.gameSize-1) {
@@ -268,6 +278,7 @@ class Game {
         }
     }
 
+    //Fonction qui place le nombre 10 (qui représente les bombes) à un emplacement aléatoire dans le tableau. On répète l'opération en fonction de la difficulté.
     placeBombs(x,y) {
         for (let i = 0; i < this.bombsNumber; i++){
             var a = randomInt(this.gameSize-1);
@@ -280,6 +291,7 @@ class Game {
         }
     }
 
+    //Fonction qui associe au tuiles leur numéro, en fonction des bombes adjascentes (+1 par bombe)
     setTilesNumber(){
 
         for(let i = 0 ; i < this.gameSize ; i++){
@@ -321,7 +333,7 @@ class Game {
                 }
         }
     }
-
+    //Le joueur à perdu, on affiche les bombes, et la div pour recommencer
     playerLost() {
 
         chrono.isRunning = false;
@@ -342,6 +354,7 @@ class Game {
 
     }
 
+    //Le joueur à gagné, on affiche la div pour recommencer
     playerWin() {
     
         chrono.stopChrono();
@@ -349,6 +362,7 @@ class Game {
         
     }
     
+    //On renvoie la difficulté de la partie
     getDifficulty() {
         return this.difficulty;
     }
@@ -363,9 +377,6 @@ class Chrono {
     seconds = 0;
     timeout;
     
-    oneSecond() {
-        setTimeout(this.startChrono(),1000);
-    }
     //Fonction chrono qui affiche le temps passé toutes les secondes
     startChrono() {
 
@@ -494,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     })
     
-    //L'utilisateur clic sur le boutton pour lancer une nouvelle partie
+    //L'utilisateur à perdu, il clique sur le boutton pour lancer une nouvelle partie
     page.retryButton.addEventListener('click', () =>{
 
         var currentDifficulty = game.getDifficulty();
@@ -502,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     })
 
-    //L'utilisateur à gagner, il clic sur le boutton pour lancer une nouvelle partie
+    //L'utilisateur à gagner, il clique sur le boutton pour lancer une nouvelle partie
     page.playAgainButton.addEventListener('click', () =>{
 
         var currentDifficulty = game.getDifficulty();
@@ -510,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     })
 
-    //L'utilisateur fait un clic gauche sur une tuile, on envoie la position du clic
+    //L'utilisateur fait un clic gauche sur une tuile, on envoie la position du clic, puis on lance la fonction de clique sur une tuile
     page.canvas.addEventListener('click', function(e) {
 
         var position = new Position;
@@ -521,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     })
 
-    //L'utilisateur fait un clic droit sur une tuile, on envoie la position du clic
+    //L'utilisateur fait un clic droit sur une tuile, on envoie la position du clic, puis on lance la fonction de clique droit sur une tuile
     page.canvas.addEventListener('contextmenu', function(e) {
 
         var position = new Position;
@@ -534,7 +545,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })
 
     
-    //L'utilisateur fait un double clic gauche sur une tuile, on envoie la position du clic
+    //L'utilisateur fait un double clic gauche sur une tuile, on envoie la position du clic, puis on lance la fonction de double clique sur une tuile
     page.canvas.addEventListener('dblclick', function(e) {
 
         var position = new Position;
