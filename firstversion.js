@@ -326,3 +326,70 @@
 //     hiddenTileArray = createHiddenTileArray();
 //     displayTiles();
 // }
+
+//Fonction chrono qui affiche le temps passé toutes les secondes
+// function startChrono() {
+
+//     if(isRunning == true){
+//         seconds = parseInt(seconds);
+//         hours = parseInt(hours);
+//         minutes = parseInt(minutes);
+
+//         seconds++;
+
+//         if(seconds == 60){
+//             minutes++
+//             seconds = 0;
+//         }
+
+//         if(minutes == 60){
+//             hours++
+//             minutes = 0;
+//         }
+//         if(seconds < 10){
+//             seconds = "0" + seconds;
+//         }
+//         if(minutes < 10){
+//             minutes = "0" + minutes
+//         }
+//         if(hours < 10){
+//             hours = "0" + hours
+//         }
+//         chronochronometre.textContent = `${hours}:${minutes}:${seconds}`
+
+//         setTimeout(startChrono, 1000);
+//     }
+    
+// }
+
+// //fonction qui arrête le chrono
+// function stopChrono() {
+
+//     isRunning = false;
+//     chronometre.textContent = `${hours}:${minutes}:${seconds}`
+// }
+
+// //Fonction qui remet le chrono à 00:00:00
+// function resetChrono() {
+
+//         isRunning = false;
+//         chronometre.textContent = "00:00:00";
+//         hours = "0";
+//         minutes = "0";
+//         seconds = "0";
+//         clearTimeout(timeout);
+// }
+
+//fonction qui va renvoyer la position du curseur en x,y
+// function getPosition(canvas, event) {
+
+//     const rect = canvas.getBoundingClientRect()
+//     //Calcul de la position en nombres entiers
+//     const x = Math.floor((event.clientX - rect.left)/45)
+//     const y = Math.floor((event.clientY - rect.top)/48)
+//     let position = new Position;
+//     position.x = x
+//     position.y = y
+//     return position;
+
+// }

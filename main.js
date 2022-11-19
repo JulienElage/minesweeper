@@ -1,45 +1,7 @@
-let chrono = document.getElementById('chrono');
-let isRunning = false;
-let hours = 0;
-let minutes = 0;
-let seconds = 0;
-let timeout;
+var chrono;
 var game;
 var page;
 var player;
-
-class Player {
-    //Le joueur a perdu, on affiche toutes les bombes, et un block spécial
-    playerLost() {
-
-        isRunning = false;
-        stopChrono();
-        game.didPlayerLost = true;
-        var imageBombTile = document.createElement("img");
-        imageBombTile.src = "./image/bombTile.png";
-        for (let x = 0 ; x < game.gameSize ; x++) {
-            for (let y = 0 ; y < game.gameSize ; y++) {
-                if(game.hiddenTileArray[x][y].value >= 10){
-                    imageBombTile.addEventListener('load', function(){
-                    page.ctx.drawImage(imageBombTile, x*45, y*48, 45, 48,);
-                    }, false);
-                }
-            }
-        }
-        page.playerLostDiv.style.display = "block";
-
-    }
-
-    playerWin() {
-
-        //Le joueur a gagné, on affiche un block spécial
-    
-        stopChrono();
-        page.playerWonDiv.style.display ="block";
-        
-    }
-
-}
 
 class Game {
 
@@ -68,8 +30,10 @@ class Game {
         this.bombsNumber = (this.gameSize*this.gameSize*1/6);
         this.tileToDiscover = this.gameSize*this.gameSize - this.bombsNumber;
         this.tileDiscovered = 0;
+        page.playerLostDiv.style.display = "none";
+        page.playerWinDiv.style.display = "none";
+        chrono.resetChrono();
         this.createHiddenTileArray();
-        console.log(this.hiddenTileArray);
         this.displayTiles();
     
     }
@@ -111,8 +75,8 @@ class Game {
     userLeftClickedOnTile(x,y) {
 
         if(this.firstClick == false) {
-            isRunning = true;
-            startChrono();
+            chrono.isRunning = true;
+            chrono.startChrono();
             this.placeBombs(x,y);
             this.setTilesNumber();
             this.firstClick = true;
@@ -121,7 +85,7 @@ class Game {
             this.hiddenTileArray[x][y].isDiscovered = true;
             //On vérifie si le joueur clique sur une bombe, si oui on affiche une bombe sur la tuile.
             if(this.hiddenTileArray[x][y].value >= 10){
-                    player.playerLost();
+                    this.playerLost();
                     var imageBombOnClick = document.createElement("img");
                     imageBombOnClick.src = "./image/bombOnClick.png";
                     imageBombOnClick.addEventListener('load', function(){
@@ -170,7 +134,7 @@ class Game {
                 }, false);
                 //On vérifie si le joueur a gagné
                 if(this.tileDiscovered == this.tileToDiscover && this.bombsNumber == 0){
-                    player.playerWin();
+                   this.playerWin();
                 }
             }
         }
@@ -189,7 +153,7 @@ class Game {
                 this.bombsNumber--;
                 document.getElementById('compteur').innerHTML = this.bombsNumber;
                 if(this.tileDiscovered == this.tileToDiscover && this.bombsNumber == 0){
-                    player.playerWin();
+                    this.playerWin();
                 }
                 break;
     
@@ -218,7 +182,7 @@ class Game {
     }
 
     userDoubleClickedOnTile(x,y){
-        console.log(this.hiddenTileArray[x][y].isDiscovered, this.hiddenTileArray[x][y].isDblClicked);
+
         if(this.hiddenTileArray[x][y].isDiscovered == true && this.hiddenTileArray[x][y].isDblClicked == false) {
             if(this.checkAdjacentMarkedBomb(x,y)) {
                 this.hiddenTileArray[x][y].isDblClicked = true;
@@ -358,8 +322,138 @@ class Game {
         }
     }
 
+    playerLost() {
+
+        chrono.isRunning = false;
+        chrono.stopChrono();
+        game.didPlayerLost = true;
+        var imageBombTile = document.createElement("img");
+        imageBombTile.src = "./image/bombTile.png";
+        for (let x = 0 ; x < game.gameSize ; x++) {
+            for (let y = 0 ; y < game.gameSize ; y++) {
+                if(game.hiddenTileArray[x][y].value >= 10){
+                    imageBombTile.addEventListener('load', function(){
+                    page.ctx.drawImage(imageBombTile, x*45, y*48, 45, 48,);
+                    }, false);
+                }
+            }
+        }
+        page.playerLostDiv.style.display = "block";
+
+    }
+
+    playerWin() {
+    
+        chrono.stopChrono();
+        page.playerWinDiv.style.display ="block";
+        
+    }
+    
     getDifficulty() {
         return this.difficulty;
+    }
+}
+
+class Chrono {
+    
+    chrono = document.getElementById('chrono');
+    isRunning = false;
+    hours = 0;
+    minutes = 0;
+    seconds = 0;
+    timeout;
+    
+    oneSecond() {
+        setTimeout(this.startChrono(),1000);
+    }
+    //Fonction chrono qui affiche le temps passé toutes les secondes
+    startChrono() {
+
+        if(this.isRunning == true){
+            this.seconds = parseInt(this.seconds);
+            this.hours = parseInt(this.hours);
+            this.minutes = parseInt(this.minutes);
+    
+            this.seconds++;
+    
+            if(this.seconds == 60){
+                this.minutes++
+                this.seconds = 0;
+            }
+    
+            if(this.minutes == 60){
+                this.hours++
+                this.minutes = 0;
+            }
+            if(this.seconds < 10){
+                this.seconds = "0" + this.seconds;
+            }
+            if(this.minutes < 10){
+                this.minutes = "0" + this.minutes
+            }
+            if(this.hours < 10){
+                this.hours = "0" + this.hours
+            }
+
+            this.chrono.textContent = `${this.hours}:${this.minutes}:${this.seconds}`
+
+            setTimeout(function() {
+
+                chrono.startChrono();
+
+            },1000)
+        }
+    }
+
+    //fonction qui arrête le chrono
+    stopChrono() {
+
+    this.isRunning = false;
+    this.chrono.textContent = `${this.hours}:${this.minutes}:${this.seconds}`
+
+    }
+
+    //Fonction qui remet le chrono à 00:00:00
+    resetChrono() {
+
+        this.isRunning = false;
+        this.chrono.textContent = "00:00:00";
+        this.hours = "0";
+        this.minutes = "0";
+        this.seconds = "0";
+        clearTimeout(this.timeout);
+
+    }
+}
+
+class Page {
+
+    easyDifficultyButton = document.getElementById('easyDifficultyButton');
+    normalDifficultyButton = document.getElementById('normalDifficultyButton');
+    hardDifficultyButton = document.getElementById('hardDifficultyButton');
+    playerLostDiv = document.getElementById('retryDiv');
+    playerWinDiv = document.getElementById('playerWinDiv');
+    retryButton = document.getElementById('retryButton');
+    playAgainButton = document.getElementById('playAgainButton');
+    canvas = document.querySelector('canvas');
+    rect = this.canvas.getBoundingClientRect()
+    ctx = this.canvas.getContext('2d');
+
+    getPosition(event) {
+        //Calcul de la position en nombres entiers
+        const x = Math.floor((event.clientX - this.rect.left)/45)
+        const y = Math.floor((event.clientY - this.rect.top)/48)
+        let position = new Position;
+        position.x = x
+        position.y = y
+        return position;
+    }
+}
+
+class Position {
+    constructor(x,y){
+        this.x = x;
+        this.y = y;
     }
 }
 
@@ -373,38 +467,10 @@ class Tile {
     }
 }
 
-class Chrono {
-    
-    constructor() {
-
-    }
-}
-
-class Position {
-    constructor(x,y){
-        this.x = x;
-        this.y = y;
-    }
-}
-
-class Page {
-
-    easyDifficultyButton = document.getElementById('easyDifficultyButton');
-    normalDifficultyButton = document.getElementById('normalDifficultyButton');
-    hardDifficultyButton = document.getElementById('hardDifficultyButton');
-    playerLostDiv = document.getElementById('retryDiv');
-    playerWonDiv = document.getElementById('playerWinDiv');
-    retryButton = document.getElementById('retryButton');
-    playAgainButton = document.getElementById('playAgainButton');
-    canvas = document.querySelector('canvas');
-    ctx = this.canvas.getContext('2d');
-
-}
-
 //Au démarrage, on lance un démineur facile par défaut
 document.addEventListener('DOMContentLoaded', function() {
     page = new Page();
-    player = new Player();
+    chrono = new Chrono();
     game = new Game("easy");
 
     //L'utilisateur choisis la difficulté facile
@@ -448,7 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
     page.canvas.addEventListener('click', function(e) {
 
         var position = new Position;
-        position = getPosition(page.canvas, e);
+        position = page.getPosition(e);
         x = position.x
         y = position.y
         game.userLeftClickedOnTile(x,y);
@@ -459,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
     page.canvas.addEventListener('contextmenu', function(e) {
 
         var position = new Position;
-        position = getPosition(page.canvas, e);
+        position = page.getPosition(e);
         x = position.x
         y = position.y
         game.userRightClickedOnTile(x,y)
@@ -472,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function() {
     page.canvas.addEventListener('dblclick', function(e) {
 
         var position = new Position;
-        position = getPosition(page.canvas, e);
+        position = page.getPosition(e);
         x = position.x
         y = position.y
         game.userDoubleClickedOnTile(x,y);
@@ -485,72 +551,5 @@ document.addEventListener('DOMContentLoaded', function() {
 function randomInt(max) {
 
     return Math.floor(Math.random() * (max + 1));
-
-}
-
-//Fonction chrono qui affiche le temps passé toutes les secondes
-function startChrono() {
-
-    if(isRunning == true){
-        seconds = parseInt(seconds);
-        hours = parseInt(hours);
-        minutes = parseInt(minutes);
-
-        seconds++;
-
-        if(seconds == 60){
-            minutes++
-            seconds = 0;
-        }
-
-        if(minutes == 60){
-            hours++
-            minutes = 0;
-        }
-        if(seconds < 10){
-            seconds = "0" + seconds;
-        }
-        if(minutes < 10){
-            minutes = "0" + minutes
-        }
-        if(hours < 10){
-            hours = "0" + hours
-        }
-        chrono.textContent = `${hours}:${minutes}:${seconds}`
-
-        setTimeout(startChrono, 1000);
-    }
-    
-}
-
-//fonction qui arrête le chrono
-function stopChrono() {
-
-    isRunning = false;
-    chrono.textContent = `${hours}:${minutes}:${seconds}`
-}
-
-//Fonction qui remet le chrono à 00:00:00
-function resetChrono() {
-
-        isRunning = false;
-        chrono.textContent = "00:00:00";
-        hours = "0";
-        minutes = "0";
-        seconds = "0";
-        clearTimeout(timeout);
-}
-
-//fonction qui va renvoyer la position du curseur en x,y
-function getPosition(canvas, event) {
-
-    const rect = canvas.getBoundingClientRect()
-    //Calcul de la position en nombres entiers
-    const x = Math.floor((event.clientX - rect.left)/45)
-    const y = Math.floor((event.clientY - rect.top)/48)
-    let position = new Position;
-    position.x = x
-    position.y = y
-    return position;
 
 }
