@@ -1,7 +1,6 @@
 var chrono;
 var game;
 var page;
-var player;
 
 class Game {
 
@@ -204,36 +203,37 @@ class Game {
     checkAdjacentMarkedBomb(x,y) {
 
         var adjacentBombMarked = 0;
+
         if(x+1 <= this.gameSize-1 && this.hiddenTileArray[x+1][y].isMarked == 1) {
-            adjacentBombMarked++
+            adjacentBombMarked++;
         }
             
         if(x+1 <= this.gameSize-1 && y+1 <= this.gameSize-1 && this.hiddenTileArray[x+1][y+1].isMarked == 1) {
-            adjacentBombMarked++
+            adjacentBombMarked++;
         }
             
         if(x+1 <= this.gameSize-1 && y-1 >= 0 && this.hiddenTileArray[x+1][y-1].isMarked == 1) {
-            adjacentBombMarked++
+            adjacentBombMarked++;
         }
             
         if(x-1 >= 0 && this.hiddenTileArray[x-1][y].isMarked == 1) {
-            adjacentBombMarked++
+            adjacentBombMarked++;
         }
             
         if(x-1 >= 0 && y-1 >= 0 && this.hiddenTileArray[x-1][y-1].isMarked == 1){
-            adjacentBombMarked++
+            adjacentBombMarked++;
         }
             
         if(x-1 >= 0 && y+1 <= this.gameSize-1 && this.hiddenTileArray[x-1][y+1].isMarked == 1) {
-            adjacentBombMarked++
+            adjacentBombMarked++;
         }
             
         if(y+1 <= this.gameSize-1 && this.hiddenTileArray[x][y+1].isMarked == 1) {
-            adjacentBombMarked++
+            adjacentBombMarked++;
         }
            
         if(y-1 >= 0 && this.hiddenTileArray[x][y-1].isMarked == 1) {
-            adjacentBombMarked++
+            adjacentBombMarked++;
         }
         if(adjacentBombMarked == this.hiddenTileArray[x][y].value) {
             return true;
@@ -447,18 +447,19 @@ class Page {
     retryButton = document.getElementById('retryButton');
     playAgainButton = document.getElementById('playAgainButton');
     canvas = document.querySelector('canvas');
-    rect = this.canvas.getBoundingClientRect()
     ctx = this.canvas.getContext('2d');
 
     getPosition(event) {
         //Calcul de la position en nombres entiers
-        const x = Math.floor((event.clientX - this.rect.left)/45)
-        const y = Math.floor((event.clientY - this.rect.top)/48)
+        const rect = this.canvas.getBoundingClientRect()
+        const x = Math.floor((event.clientX - rect.left)/45)
+        const y = Math.floor((event.clientY - rect.top)/48)
         let position = new Position;
         position.x = x
         position.y = y
         return position;
     }
+
 }
 
 class Position {
@@ -480,6 +481,7 @@ class Tile {
 
 //Au démarrage, on lance un démineur facile par défaut
 document.addEventListener('DOMContentLoaded', function() {
+    
     page = new Page();
     chrono = new Chrono();
     game = new Game("easy");
