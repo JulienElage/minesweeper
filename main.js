@@ -3,20 +3,21 @@ var game;
 var page;
 
 class Game {
-
+    //Classe principale de notre programme, elle va contenir les méthodes
     //Valeurs par défaut
     gameSize = 0;
     hiddenTileArray;
     didPlayerLost = false;
+    didPlayerWin = false;
     bombsNumber = 0;
     tileDiscovered = 0;
     tileToDiscover = 0;
     firstClick = false;
 
     constructor(difficulty) {
-        //À chaque instance de Game, on lui donne une difficulté, avec cela on va calculer les paramétres de la partie.
+        //À chaque instance de Game, on lui affecte une difficulté, avec cela on va calculer les paramètres de la partie.
         this.difficulty = difficulty;
-
+        //On ajuste la taille de la grille en fonction de la difficulté.
         switch (this.difficulty){
             case "easy":     
                 this.gameSize = 6;
@@ -30,6 +31,7 @@ class Game {
         }
         this.bombsNumber = (this.gameSize*this.gameSize*1/6);
         this.tileToDiscover = this.gameSize*this.gameSize - this.bombsNumber;
+        //On initialise le nombre de tuiles découvertes à 0.
         this.tileDiscovered = 0;
         page.playerLostDiv.style.display = "none";
         page.playerWinDiv.style.display = "none";
@@ -42,12 +44,12 @@ class Game {
     //Fonction qui affiche le nombre de tuiles en fonction de la difficulté.
     displayTiles() {
 
-        //Chaque image faut 45*48 pixel, on calcul la taille du canvas
+        //Chaque image fait 45*48 pixel, on calcule la taille du canvas
         page.ctx.canvas.width  = this.gameSize*45;
         page.ctx.canvas.height = this.gameSize*48;
         //On affiche le nombre de bombes
         document.getElementById('compteur').innerHTML = this.bombsNumber;
-        //On affiche toutes les tuiles
+        //On affiche toutes les tuiles vierges
         for (let x = 0; x < this.gameSize; x++) {
             for (let y = 0; y < this.gameSize; y++) {
             var imageTile = document.createElement("img");
@@ -59,25 +61,27 @@ class Game {
         }
     }
 
-    //Fonction qui crée un tableau de tuiles caché en fonction de la difficulté choisie et l'initialise
+    //Fonction qui initialise un tableau de tuiles cachées en fonction de la taille.
     createHiddenTileArray() {
+
+         //On crée un tableau vide de la bonne taille.
         this.hiddenTileArray = new Array(this.gameSize)
     
         for (let i = 0; i < this.gameSize; i++){
             this.hiddenTileArray[i] = new Array(this.gameSize);
         }
-        //On a créé un tableau vide.
+       
         for(let i = 0; i < this.gameSize ; i++) {
             for(let j = 0; j < this.gameSize ; j++){
-                //On initialise à valeur 0, non découverte, non marqué, non double cliqué
+                //On ajoute un objet Tile dans chaque case, qu'on initialise à valeur 0, non découverte, non marqué, non double cliqué
                 this.hiddenTileArray[i][j] = new Tile(0,false,0,false);
             } 
         } 
     }
 
     //Fonction qui va découvrir la tuile, si elle ne l'est pas déjà, et si elle n'est pas marquée (drapeau ou '?').
-    userLeftClickedOnTile(x,y) {
-        //Lors du premier clic on lance le chrono, on place les bombes et on attribue la valeur des tuiles
+    userLeftClicked(x,y) {
+        //Lors du premier clic on lance le chrono, on place les bombes et on attribue la valeur des tuiles(setTilesNumber)(à noter qu'on place les bombes APRES le premier clic).
         if(this.firstClick == false) {
             chrono.isRunning = true;
             chrono.startChrono();
@@ -85,8 +89,9 @@ class Game {
             this.setTilesNumber();
             this.firstClick = true;
         }
-        //On vérifie si la case n'est pas déjà découverte, et si elle est marquée, et si le joueur a perdu.
+        //On vérifie si la case n'est pas déjà découverte, si elle est marquée, et si le joueur a perdu.
         if(this.hiddenTileArray[x][y].isDiscovered == false && this.hiddenTileArray[x][y].isMarked == 0 && this.didPlayerLost == false){
+            //Si on passe dans le if, on marque la tuile comme découverte.
             this.hiddenTileArray[x][y].isDiscovered = true;
             //On vérifie si le joueur clique sur une bombe, si oui on affiche une bombe sur la tuile.
             if(this.hiddenTileArray[x][y].value >= 10){
@@ -99,6 +104,7 @@ class Game {
             } 
             else {
                 //Sinon on affiche une image de tuile découverte
+                //On compte le nombre de tuiles découvertes pour la condition de victoire
                 this.tileDiscovered++;
                 let value = this.hiddenTileArray[x][y].value;
                 var imageDiscoveredTile = document.createElement("img");
@@ -146,52 +152,56 @@ class Game {
     }
 
     //Fonction qui marque la tuile avec d'abord un drapeau puis un '?', puis elle revient à la normale.
-    userRightClickedOnTile(x,y) {
-        switch (true){
-            //On vérifie si la tuile est déjà découverte, et si elle n'est pas marqué, et si le joueur n'a pas perdu, si oui on l'affiche avec un drapeau
-            case this.hiddenTileArray[x][y].isDiscovered == false && this.hiddenTileArray[x][y].isMarked == 0 && this.didPlayerLost == false:
-                var imageMarkedTile = document.createElement("img");
-                imageMarkedTile.src = "./image/markedTile.jpg";
-                imageMarkedTile.addEventListener('load', function(){
-                    page.ctx.drawImage(imageMarkedTile, x*45, y*48, 45, 48,);
-                }, false);
-                this.hiddenTileArray[x][y].isMarked = 1;
-                this.bombsNumber--;
-                document.getElementById('compteur').innerHTML = this.bombsNumber;
-                if(this.tileDiscovered == this.tileToDiscover && this.bombsNumber == 0){
-                    this.playerWin();
-                }
-                break;
-    
-            //On vérifie si la tuile est déjà découverte, et si elle est déjà marqué d'un drapeau, et si le joueur n'a pas perdu, si oui on l'affiche avec un '?'
-            case this.hiddenTileArray[x][y].isDiscovered == false && this.hiddenTileArray[x][y].isMarked == 1 && this.didPlayerLost == false:
-                var imageQuestionningTile = document.createElement("img");
-                imageQuestionningTile.src = "./image/questionningTile.jpg";
-                imageQuestionningTile.addEventListener('load', function(){
-                    page.ctx.drawImage(imageQuestionningTile, x*45, y*48, 45, 48,);
-                }, false);
-                this.hiddenTileArray[x][y].isMarked = 2;
-                this.bombsNumber++;
-                document.getElementById('compteur').innerHTML = this.bombsNumber;
-                break;
-    
-            //On vérifie si la tuile est déjà découverte, et si elle est déjà marqué d'un '?', et si le joueur n'a pas perdu, si oui on l'affiche non découverte
-            case this.hiddenTileArray[x][y].isDiscovered == false && this.hiddenTileArray[x][y].isMarked == 2 && this.didPlayerLost == false:
-                var imageTile = document.createElement("img");
-                imageTile.src = "./image/tile.jpg";
-                imageTile.addEventListener('load', function(){
-                    page.ctx.drawImage(imageTile, x*45, y*48, 45, 48,);
-                }, false);
-                this.hiddenTileArray[x][y].isMarked = 0;
-                break;
+    userRightClicked(x,y) {
+        //On vérifie si le joueur a perdu ou gagné et si la partie est lancée.
+        if(this.didPlayerLost == false && this.didPlayerWin == false && this.firstClick == true){
+            switch (true){
+                //On vérifie si la tuile est déjà découverte, et si elle n'est PAS marquée, si oui on l'affiche avec un drapeau
+                case this.hiddenTileArray[x][y].isDiscovered == false && this.hiddenTileArray[x][y].isMarked == 0 && this.didPlayerLost == false:
+                    var imageMarkedTile = document.createElement("img");
+                    imageMarkedTile.src = "./image/markedTile.jpg";
+                    imageMarkedTile.addEventListener('load', function(){
+                        page.ctx.drawImage(imageMarkedTile, x*45, y*48, 45, 48,);
+                    }, false);
+                    this.hiddenTileArray[x][y].isMarked = 1;
+                    this.bombsNumber--;
+                    document.getElementById('compteur').innerHTML = this.bombsNumber;
+                    if(this.tileDiscovered == this.tileToDiscover && this.bombsNumber == 0){
+                        this.playerWin();
+                    }
+                    break;
+        
+                //On vérifie si la tuile est déjà découverte, et si elle est DEJA marquée d'un drapeau, si oui on l'affiche avec un '?'
+                case this.hiddenTileArray[x][y].isDiscovered == false && this.hiddenTileArray[x][y].isMarked == 1 && this.didPlayerLost == false:
+                    var imageQuestionningTile = document.createElement("img");
+                    imageQuestionningTile.src = "./image/questionningTile.jpg";
+                    imageQuestionningTile.addEventListener('load', function(){
+                        page.ctx.drawImage(imageQuestionningTile, x*45, y*48, 45, 48,);
+                    }, false);
+                    this.hiddenTileArray[x][y].isMarked = 2;
+                    this.bombsNumber++;
+                    document.getElementById('compteur').innerHTML = this.bombsNumber;
+                    break;
+        
+                //On vérifie si la tuile est déjà découverte, et si elle est déjà marquée d'un '?', si oui on l'affiche non découverte
+                case this.hiddenTileArray[x][y].isDiscovered == false && this.hiddenTileArray[x][y].isMarked == 2 && this.didPlayerLost == false:
+                    var imageTile = document.createElement("img");
+                    imageTile.src = "./image/tile.jpg";
+                    imageTile.addEventListener('load', function(){
+                        page.ctx.drawImage(imageTile, x*45, y*48, 45, 48,);
+                    }, false);
+                    this.hiddenTileArray[x][y].isMarked = 0;
+                    break;
+            }
         }
+        
     }
 
-    //Fonction qui découvre les tuiles adjacentes, si on a marqué le bon nombre de tuiles adjacentes
-    userDoubleClickedOnTile(x,y){
+    //Fonction qui affiche les tuiles adjacentes, si on a marqué le bon nombre de tuiles adjacentes (ex : sur une tuile 2 on doit marquer 2 tuiles autour pour double click)
+    userDoubleClicked(x,y){
 
         if(this.hiddenTileArray[x][y].isDiscovered == true && this.hiddenTileArray[x][y].isDblClicked == false) {
-            if(this.checkAdjacentMarkedBomb(x,y)) {
+            if(this.checkAdjacentMarkedBombs(x,y)) {
                 this.hiddenTileArray[x][y].isDblClicked = true;
                 this.discoverAdjacentTiles(x,y);
             }
@@ -200,7 +210,7 @@ class Game {
     }
 
     //fonction qui va retourner vrai si le nombre de bombes adjacentes est bien le nombre de tuiles adjacentes marquées
-    checkAdjacentMarkedBomb(x,y) {
+    checkAdjacentMarkedBombs(x,y) {
 
         var adjacentBombMarked = 0;
 
@@ -246,35 +256,35 @@ class Game {
     discoverAdjacentTiles(x,y) {
 
         if(x+1 <= this.gameSize-1) {
-            this.userLeftClickedOnTile(x+1,y);
+            this.userLeftClicked(x+1,y);
         }
             
         if(x+1 <= this.gameSize-1 && y+1 <= this.gameSize-1) {
-            this.userLeftClickedOnTile(x+1,y+1);
+            this.userLeftClicked(x+1,y+1);
         }
             
         if(x+1 <= this.gameSize-1 && y-1 >= 0) {
-            this.userLeftClickedOnTile(x+1,y-1);
+            this.userLeftClicked(x+1,y-1);
         }
             
         if(x-1 >= 0) {
-            this.userLeftClickedOnTile(x-1,y);
+            this.userLeftClicked(x-1,y);
         }
             
         if(x-1 >= 0 && y-1 >= 0){
-            this.userLeftClickedOnTile(x-1,y-1);
+            this.userLeftClicked(x-1,y-1);
         }
             
         if(x-1 >= 0 && y+1 <= this.gameSize-1) {
-            this.userLeftClickedOnTile(x-1,y+1);
+            this.userLeftClicked(x-1,y+1);
         }
             
         if(y+1 <= this.gameSize-1) {
-            this.userLeftClickedOnTile(x,y+1);
+            this.userLeftClicked(x,y+1);
         }
            
         if(y-1 >= 0) {
-            this.userLeftClickedOnTile(x,y-1);
+            this.userLeftClicked(x,y-1);
         }
     }
 
@@ -291,7 +301,7 @@ class Game {
         }
     }
 
-    //Fonction qui associe au tuiles leur numéro, en fonction des bombes adjascentes (+1 par bombe)
+    //Fonction qui associe aux tuiles leur numéro, en fonction des bombes adjascentes (+1 par bombe)
     setTilesNumber(){
 
         for(let i = 0 ; i < this.gameSize ; i++){
@@ -356,16 +366,12 @@ class Game {
 
     //Le joueur à gagné, on affiche la div pour recommencer
     playerWin() {
-    
+        this.didPlayerWin = true;
         chrono.stopChrono();
         page.playerWinDiv.style.display ="block";
         
     }
-    
-    //On renvoie la difficulté de la partie
-    getDifficulty() {
-        return this.difficulty;
-    }
+
 }
 
 class Chrono {
@@ -439,6 +445,7 @@ class Chrono {
 
 class Page {
 
+    //Cette classe va contenir les éléments HTML de la page
     easyDifficultyButton = document.getElementById('easyDifficultyButton');
     normalDifficultyButton = document.getElementById('normalDifficultyButton');
     hardDifficultyButton = document.getElementById('hardDifficultyButton');
@@ -450,7 +457,7 @@ class Page {
     ctx = this.canvas.getContext('2d');
 
     getPosition(event) {
-        //Calcul de la position en nombres entiers
+        //Calcul de la position du curseur sur le canvas en nombres entiers
         const rect = this.canvas.getBoundingClientRect()
         const x = Math.floor((event.clientX - rect.left)/45)
         const y = Math.floor((event.clientY - rect.top)/48)
@@ -486,81 +493,81 @@ document.addEventListener('DOMContentLoaded', function() {
     chrono = new Chrono();
     game = new Game("easy");
 
-    //L'utilisateur choisis la difficulté facile
+    //L'utilisateur choisit la difficulté facile
     page.easyDifficultyButton.addEventListener('click', () => {
 
         game = new Game("easy");
 
     })
 
-    //L'utilisateur choisis la difficulté moyenne
+    //L'utilisateur choisit la difficulté moyenne
     page.normalDifficultyButton.addEventListener('click', () => {
 
         game = new Game("normal");
 
     })
 
-    //L'utilisateur choisis la difficulté difficile
+    //L'utilisateur choisit la difficulté difficile
     page.hardDifficultyButton.addEventListener('click', () => {
 
         game = new Game("hard");
 
     })
     
-    //L'utilisateur à perdu, il clique sur le boutton pour lancer une nouvelle partie
+    //L'utilisateur a perdu, il clique sur le bouton pour lancer une nouvelle partie
     page.retryButton.addEventListener('click', () =>{
 
-        var currentDifficulty = game.getDifficulty();
+        var currentDifficulty = game.difficulty;
         game = new Game(currentDifficulty);
 
     })
 
-    //L'utilisateur à gagner, il clique sur le boutton pour lancer une nouvelle partie
+    //L'utilisateur a gagné, il clique sur le bouton pour lancer une nouvelle partie
     page.playAgainButton.addEventListener('click', () =>{
 
-        var currentDifficulty = game.getDifficulty();
+        var currentDifficulty = game.difficulty;
         game = new Game(currentDifficulty);
 
     })
 
-    //L'utilisateur fait un clic gauche sur une tuile, on envoie la position du clic, puis on lance la fonction de clique sur une tuile
+    //L'utilisateur fait un clic gauche sur le canvas, on envoie la position du clic, puis on lance la fonction userLeftClicked
     page.canvas.addEventListener('click', function(e) {
 
         var position = new Position;
         position = page.getPosition(e);
         x = position.x
         y = position.y
-        game.userLeftClickedOnTile(x,y);
+        game.userLeftClicked(x,y);
 
     })
 
-    //L'utilisateur fait un clic droit sur une tuile, on envoie la position du clic, puis on lance la fonction de clique droit sur une tuile
+    //L'utilisateur fait un clic droit sur le canvas, on envoie la position du clic, puis on lance la fonction userRightClicked
     page.canvas.addEventListener('contextmenu', function(e) {
 
         var position = new Position;
         position = page.getPosition(e);
         x = position.x
         y = position.y
-        game.userRightClickedOnTile(x,y)
+        game.userRightClicked(x,y)
         e.preventDefault();
 
     })
 
     
-    //L'utilisateur fait un double clic gauche sur une tuile, on envoie la position du clic, puis on lance la fonction de double clique sur une tuile
+    //L'utilisateur fait un double clic gauche sur le canvas, on envoie la position du clic, puis on lance la fonction userDoubleClicked
     page.canvas.addEventListener('dblclick', function(e) {
 
         var position = new Position;
         position = page.getPosition(e);
         x = position.x
         y = position.y
-        game.userDoubleClickedOnTile(x,y);
+        game.userDoubleClicked(x,y);
 
     })
 
 });
 
-//Fonction qui renvoie un nombre aléatoire (pas besoin d'un minimum, car c'est 0 dans notre cas).
+//Fonction qui renvoie un nombre aléatoire pour le placer les bombes (pas besoin d'un minimum, car c'est 0 dans notre cas).
 function randomInt(max) {
 
     return Math.floor(Math.random() * (max + 1));
